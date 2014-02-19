@@ -5,7 +5,7 @@ function Kuy(){
 
 	this.db = null; //internal reference to mongodb client
 	this.status = "stopped"; //whether Kuy is working or not, it would change to working if Kuy is workingü
-	this.ready = 0; //state of ready, 0 = initial, 1 = connecting; 2 = ready
+	this.readyStatus = 0; //state of ready, 0 = initial, 1 = connecting; 2 = ready
 	this.readyQueue = []; 
 	this.jobWorkers = {};
 	this._mainInterval = null; //reference to main interval, that checks job handler intervals, and health of the system
