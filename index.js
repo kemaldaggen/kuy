@@ -22,10 +22,10 @@ Kuy.prototype.init = function(options){
 	this.mongo_url = options.mongo_url || "localhost:27017";
 	this._runEvery = options.runEvery || 1000; //if no options was given run at every 30 secs
 	this._batchSize = options.batchSize || 600000;
-	this.readyStatus = 2;
+	this.readyStatus = 1;
 	mongo.MongoClient.connect(kuy.mongo_url,{native_parser:true}, function(err, db){
 		kuy.db = db; //store reference to db;
-		this.readyStatus = 3;
+		this.readyStatus = 2;
 		self.executeReadyQueue();
 	});
 }
