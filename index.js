@@ -23,9 +23,9 @@ Kuy.prototype.init = function(options){
 	this._runEvery = options.runEvery || 1000; //if no options was given run at every 30 secs
 	this._batchSize = options.batchSize || 600000;
 	this.readyStatus = 1;
-	mongo.MongoClient.connect(kuy.mongo_url,{native_parser:true}, function(err, db){
-		kuy.db = db; //store reference to db;
-		this.readyStatus = 2;
+	mongo.MongoClient.connect(self.mongo_url,{native_parser:true}, function(err, db){
+		self.db = db; //store reference to db;
+		self.readyStatus = 2;
 		self.executeReadyQueue();
 	});
 }
@@ -45,7 +45,7 @@ Kuy.prototype.ready = function(callback){
 
 */
 Kuy.prototype.executeReadyQueue = function(){
-	for(var i = 0; i < this.readyQueue; i++){
+	for(var i = 0; i < this.readyQueue.length; i++){
 		this.readyQueue[i]();
 	}
 }
@@ -61,12 +61,18 @@ Kuy.prototype.executeReadyQueue = function(){
 	with arbitrary data
 */
 Kuy.prototype.schedule = function (when,jobName,data){
+	var newData = {};
+	data = data.toObject();
+	for(var i in data){
+		if(i !== "_id"){
+			newData[i] = data[i];
+		}
+	}
 	var job = new Job(this,{
 		jobName:jobName,
-		data:data,
+		data:newData,
 		runAt : when
 	});
-
 	job.save(function(){
 		console.log("job saved");
 	});
@@ -91,7 +97,7 @@ Kuy.prototype.defineJob = function (jobName, fn){
 */
 Kuy.prototype.start = function (){
 	var self = this;
-	console.log("starting Kuy");
+	console.log("Starting Kuy");
 	if(this._mainInterval !== null){return console.log("Kuy already running");}
 
 	this._mainInterval = setInterval(function(){
@@ -130,7 +136,6 @@ Kuy.prototype.getJobs = function(cb){
 
 	var timeUpperLimit = new Date().getTime() + this._batchSize;
 	//find pending unlocked jobs and proccess them
-	console.log("mongo query ",{runAt : {$lt : timeUpperLimit}});
 	collection.find({runAt : {$lt : timeUpperLimit},status:"pending", locked:false}).toArray(function(err,jobs){
 		if(err){console.log("error on getting jobs "); return}
 
@@ -145,7 +150,6 @@ Kuy.prototype.getJobs = function(cb){
 Kuy.prototype.lockJobs = function(jobs,cb){
 	var self = this;
 	for(var i = 0; i< jobs.length; i++){
-		console.log("creating jobs ",jobs[i]);
 		var job = new Job(self,jobs[i]);
 		job.lock();
 	}

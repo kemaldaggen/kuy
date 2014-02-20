@@ -1,6 +1,6 @@
 {
 	"name" : "kuy",
-	"version" : "0.0.5",
+	"version" : "0.0.6",
 	"description" : "Mongo backed job scheduler",
 	"main" : "index.js",
 	"repository": {
